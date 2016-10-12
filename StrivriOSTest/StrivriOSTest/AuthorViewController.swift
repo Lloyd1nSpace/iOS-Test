@@ -26,7 +26,7 @@ class AuthorViewController: UIViewController, UITableViewDataSource, UITableView
         
         self.authorTableView.delegate = self
         self.authorTableView.dataSource = self
-        self.navigationItem.title = "Recent Commits on Swift"
+        self.navigationItem.title = "Recent Commits on Rails"
         
         self.authorDataStore.getCommitsForRepoByAuthor { (authorDict, error) in
             

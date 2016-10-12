@@ -13,7 +13,7 @@ class GitHubAPIClient {
     
     class func getCommitsForRepoByAuthor(completion: @escaping ([NSDictionary]?, Error?) -> ()) {
         
-        Alamofire.request("https://api.github.com/repos/apple/swift/commits").responseJSON { (commitsByAuthorResponse) in
+        Alamofire.request("https://api.github.com/repos/rails/rails/commits").responseJSON { (commitsByAuthorResponse) in
             
             if let gitHubData = commitsByAuthorResponse.result.value as? [NSDictionary] {
                 
