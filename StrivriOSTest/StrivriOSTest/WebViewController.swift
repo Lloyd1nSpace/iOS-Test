@@ -6,10 +6,9 @@
 //  Copyright © 2016 Strivr, Inc. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
-class WebViewController: UIViewController, UIWebViewDelegate {
+class WebViewController: UIViewController {
     
     @IBOutlet weak var webView: UIWebView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -17,35 +16,27 @@ class WebViewController: UIViewController, UIWebViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.loadGitHubPage()
+        loadGitHubPage()
     }
     
     func loadGitHubPage() {
-        
-        self.webView.delegate = self
-        
-        guard let url = URL(string: self.urlString) else {
-            fatalError("There was an issue unwrapping the url in WebViewController")
+        webView.delegate = self
+        guard let url = URL(string: urlString) else {
+            print("There was an issue unwrapping the url in WebViewController")
+            return
         }
-        
         let request = URLRequest(url: url)
-        self.webView.loadRequest(request)
+        webView.loadRequest(request)
     }
-    
+}
+
+extension WebViewController: UIWebViewDelegate {
     func webViewDidStartLoad(_ webView: UIWebView) {
-        
-        self.activityIndicator.startAnimating()
+        activityIndicator.startAnimating()
     }
     
     func webViewDidFinishLoad(_ webView: UIWebView) {
-        
-        self.activityIndicator.stopAnimating()
-        self.activityIndicator.hidesWhenStopped = true
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        activityIndicator.stopAnimating()
+        activityIndicator.hidesWhenStopped = true
     }
 }

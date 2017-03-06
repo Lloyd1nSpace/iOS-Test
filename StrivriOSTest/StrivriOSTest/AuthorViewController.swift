@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AuthorViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class AuthorViewController: UIViewController {
     
     @IBOutlet weak var authorTableView: UITableView!
     let authorDataStore = AuthorDataStore.authorStore
@@ -17,48 +17,35 @@ class AuthorViewController: UIViewController, UITableViewDataSource, UITableView
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        
-        self.setUpViews()
+        setUpViews()
     }
     
     func setUpViews() {
-        
-        self.authorTableView.delegate = self
-        self.authorTableView.dataSource = self
-        self.navigationItem.title = "Recent Commits on Rails"
-        
-        self.authorDataStore.getCommitsForRepoByAuthor { (authorDict, error) in
-            
+        authorTableView.delegate = self
+        authorTableView.dataSource = self
+        navigationItem.title = "Recent Commits on Swift"
+    
+        authorDataStore.getCommitsForRepoByAuthor { [weak self] (authorDict, error) in
+            guard let strongSelf = self else { return }
             if authorDict != nil {
-                
-                self.authorTableView.reloadData()
-                
+                strongSelf.authorTableView.reloadData()
             } else if let error = error {
-                
                 print("There was a network error in AuthoVC: \(error.localizedDescription)")
             }
         }
     }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+
+}
+
+extension AuthorViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         return self.authorDataStore.loginName.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: AuthorCustomTableViewCell.reuseIdentifer, for: indexPath) as? AuthorCustomTableViewCell else {
-            fatalError("There was an issue unwrapping the AuthorCustomTableViewCell.")
-        }
-        
+        let cell = tableView.dequeueReusableCell(withIdentifier: AuthorCustomTableViewCell.reuseIdentifer, for: indexPath) as! AuthorCustomTableViewCell
         if let url = URL(string: self.authorDataStore.avatar[indexPath.row]) {
-            
             do {
                 let imageData = try Data(contentsOf: url)
                 cell.userAvatarImageView.image = UIImage(data: imageData)
@@ -67,7 +54,6 @@ class AuthorViewController: UIViewController, UITableViewDataSource, UITableView
                 print("There was an issue unwrapping the imageData for the Avatar in AuthorVC")
             }
         }
-        
         cell.usernameLabel.text = "Username: \(self.authorDataStore.loginName[indexPath.row])"
         cell.dateLabel.text = "Date: \(self.authorDataStore.timeStamp[indexPath.row])"
         cell.messageLabel.text = "Message: \(self.authorDataStore.commitMessage[indexPath.row])"
@@ -76,21 +62,16 @@ class AuthorViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    
-        self.authorTableView.deselectRow(at: indexPath, animated: true)
+        authorTableView.deselectRow(at: indexPath, animated: true)
     }
     
     func tableView(_ tableView: UITableView, didHighlightRowAt indexPath: IndexPath) {
-        
-        self.index = indexPath.row
+        index = indexPath.row
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
         if segue.identifier == AuthorCustomTableViewCell.segueIdentifier {
-            
             if let destination = segue.destination as? WebViewController {
-                
                 destination.urlString = self.authorDataStore.commitHTMLURL[self.index]
                 destination.navigationItem.title = self.authorDataStore.loginName[self.index]
                 print("Moving from AuthorVC to CommitsVC")

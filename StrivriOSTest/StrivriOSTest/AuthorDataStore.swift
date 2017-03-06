@@ -19,13 +19,11 @@ class AuthorDataStore {
     var commitHTMLURL = [String]()
     
     func getCommitsForRepoByAuthor(completion: @escaping ([NSDictionary]?, Error?) -> ()) {
-        
-        GitHubAPIClient.getCommitsForRepoByAuthor { (authorsWithCommits, error) in
-            
+    
+        GitHubAPIClient.getCommitsForRepoByAuthor {  [weak self] (authorsWithCommits, error) in
+            guard let strongSelf = self else { return }
             if let authorsWithCommits = authorsWithCommits {
-                
                 for authorInfo in authorsWithCommits {
-                    
                     guard
                         let authorDict = authorInfo["author"] as? NSDictionary,
                         let loginNameData = authorDict["login"] as? String,
@@ -35,19 +33,18 @@ class AuthorDataStore {
                         let message = commitDict["message"] as? String,
                         let dateTime = dateDict["date"] as? String,
                         let htmlURL = authorInfo["html_url"] as? String else {
-                            fatalError("There was an issue unwrapping the author information in the Author Class.")
+                            print("There was an issue unwrapping the author information in the Author Class.")
+                            return
                     }
-                    
-                    self.loginName.append(loginNameData)
-                    self.avatar.append(avatarURL)
-                    self.timeStamp.append(dateTime)
-                    self.commitMessage.append(message)
-                    self.commitHTMLURL.append(htmlURL)
+                    strongSelf.loginName.append(loginNameData)
+                    strongSelf.avatar.append(avatarURL)
+                    strongSelf.timeStamp.append(dateTime)
+                    strongSelf.commitMessage.append(message)
+                    strongSelf.commitHTMLURL.append(htmlURL)
                     
                     completion(authorsWithCommits, nil)
                 }
             } else if let error = error {
-                
                 print("There was a network error in AuthorDataStore: \(error.localizedDescription)")
                 completion(nil, error)
             }
